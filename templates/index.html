@@ -1,0 +1,33 @@
+CTYPE html>
+<html>
+	<head>
+		    <title>Stock Insight Dashboard</title>
+		        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+	</head>
+	<body>
+		<h1>📈 Stock Insight Dashboard</h1>
+
+		<form method="post">
+			<input type="text" name="ticker" placeholder="Enter ticker (e.g., AAPL)" required>
+			<button type="submit">Search</button>
+		</form>
+
+		{% if ticker %}
+			<h2>Showing data for {{ ticker }}</h2>
+			{% if stock_data %}
+				<img src="{{ stock_data['chart'] }}" alt="Stock Chart">
+				<p>1-Year Gain: {{ stock_data['gain'] }}%</p>
+				<h3>Recent News</h3>
+				<ul>
+				{% for article in stock_data['news'] %}
+					<li><a href="{{ article['url'] }}">{{ article['title'] }}</a></li>
+				{% endfor %}
+				</ul>
+			{% else %}
+				<p>No data found for this ticker.</p>
+			{% endif %}
+			{% endif %}
+	</body>
+</html>
+
+
