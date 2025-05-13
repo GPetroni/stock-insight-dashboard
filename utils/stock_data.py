@@ -1,4 +1,4 @@
-import yfinanace as yf
+import yfinance as yf
 import matplotlib.pyplot as plt
 import os
 import base64
@@ -8,36 +8,46 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 def get_stock_data(ticker):
-    #############
-    # Fetch 1-year historic stock price, calculate realized gain
-    # generate chart, get latest news.
-    ############
-
+    # Fetch stock data using yfinance
     try:
-        # get 1-year historic data
-        end_date = datetime.today()
-        start_date = end_date - timedelta(days=365)
-        data = yf.download(ticker, start=start_date, end=end_date)
+        stock = yf.Ticker(ticker)
+        stock_info = stock.history(period="1y")
 
-        if data.empty:
+        # Check if no stock data is returned
+        if stock_info.empty:
+            print(f"No stock data returned for {ticker}")
             return None
 
-        # Calculate realized gains from historic data
-        first_close = data['Close'].iloc[0]
-        last_close = data['Close'].iloc[-1]
-        gain = round(((last_close - first_close) / first_close) * 100, 2)
+        # Calculate 1-year gain
+        start_price = stock_info.iloc[0]['Close']
+        end_price = stock_info.iloc[-1]['Close']
+        one_year_gain = ((end_price - start_price) / start_price) * 100
 
-        # Plot chart and return image
-        chart_img = plot_chart(data, ticker)
+        print(f"Stock Data: {stock_info}")
 
-        # Fetch 10 newest news articals
-        news = fetch_news(ticker)
+        # Example of generating a stock chart URL (replace with actual chart API implementation)
+        chart_url = f'https://somechartapi.com/{ticker}.png'
 
+        # Fetch stock news (Example: using BeautifulSoup)
+        news_url = f"https://www.google.com/search?q={ticker}+stock+news"
+        response = requests.get(news_url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        news_articles = []
+        for item in soup.find_all("div", {"class": "BVG0Nb"}):
+            title = item.get_text()
+            link = item.find('a')['href']
+            news_articles.append({'title': title, 'url': f"https://www.google.com{link}"})
+
+        # Return a dictionary with chart URL, gain percentage, and news articles
         return {
-                "gain":gain,
-                "chart":chart_img,
-                "news":news
+            'chart': chart_url,
+            'gain': one_year_gain,
+            'start_price': start_price,  # Include start_price
+            'end_price': end_price,      # Include end_price
+            'news': news_articles,
+            'stock_data': stock_info  # Return the stock data as well
         }
+
     except Exception as e:
         print(f"[ERROR] Failed to get stock data for {ticker}: {e}")
         return None
@@ -75,7 +85,7 @@ def fetch_news(ticker):
         soup = BeautifulSoup(response.text, "html.parser")
 
         headlines = []
-        for item\ in soup.select("div.BVG0Nb"):
+        for item in soup.select("div.BVG0Nb"):
             title_tag = item.select_one("div.MBeuo")
             link_tag = item.find_parent("a", href=True)
 
