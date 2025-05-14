@@ -26,7 +26,7 @@ def get_stock_data(ticker):
         print(f"Stock Data: {stock_info}")
 
         # Example of generating a stock chart URL (replace with actual chart API implementation)
-        chart_url = f'https://somechartapi.com/{ticker}.png'
+        chart_url = plot_chart(stock_info, ticker)
 
         # Fetch stock news (Example: using BeautifulSoup)
         news_url = f"https://www.google.com/search?q={ticker}+stock+news"
@@ -69,8 +69,8 @@ def plot_chart(data, ticker):
     buf = BytesIO()
     plt.savefig(buf, format='png')
     plt.close()
-    buf.seek(9)
-    
+    buf.seek(0)
+
     # encode image for web
     return f"data:image/png;base64,{base64.b64encode(buf.read()).decode('utf-8')}"
 

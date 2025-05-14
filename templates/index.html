@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Insight Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -8,7 +10,7 @@
     <div class="container">
         <h1>📈 Stock Insight Dashboard</h1>
 
-        <!-- Search + Gain Container -->
+        <!-- Search + Gain/Loss Container -->
         <div class="search-gain-container">
             <!-- Search Form -->
             <form method="post" class="search-form">
@@ -19,18 +21,31 @@
             <!-- Gain/Loss Box -->
             {% if stock_data and stock_data['gain'] is not none %}
             <div class="gain-loss-box {% if stock_data['gain'] >= 0 %}positive{% else %}negative{% endif %}">
-                <div class="gain-loss-header">
-                    One Year Gain/Loss
-                    <span class="gain-loss-value">({stock_data['gain'] | round(2) })%</span>
-                </div>
+                <span class="gain-loss-header">One Year Gain/Loss:</span>
+                <span class="gain-loss-value">{{ stock_data['gain'] | round(4) }}%</span>
             </div>
+            {% else %}
+                <div class="gain-loss-box">
+                    <span class="gain-loss-header">One Year Gain/Loss:</span>
+                    <span class="gain-loss-value">N/A</span>
+                </div>
             {% endif %}
         </div>
 
         {% if ticker %}
             <h2>Showing data for {{ ticker }}</h2>
+
             {% if stock_data %}
-                <img src="{{ stock_data['chart'] }}" alt="Stock Chart">
+                <!-- Stock Chart -->
+                {% if stock_data['chart'] %}
+                    <h3>Stock Chart:</h3>
+		    <!-- <img src="data:image/png;base64,{{ stock_data['chart'] }}" alt="Stock Chart">-->
+		    <img src="{{ stock_data['chart']}}" alt="Stock Chart">
+                {% else %}
+                    <p>No chart data available.</p>
+                {% endif %}
+
+                <!-- Recent News -->
                 <h3>Recent News</h3>
                 <ul>
                 {% for article in stock_data['news'] %}
@@ -42,35 +57,6 @@
             {% endif %}
         {% endif %}
     </div>
-
-    <div class="result">
-        {% if chart %}
-            <h3>Stock Chart:</h3>
-            <img src="data:image/png;base64,{{ chart }}" alt="Stock Chart">
-        {% else %}
-            <p>No chart data available.</p>
-        {% endif %}
-
-        {% if gain %}
-            <h3>Stock Gain/Loss:</h3>
-            <p>{{ gain }}%</p>
-        {% else %}
-            <p>No gain/loss data available.</p>
-        {% endif %}
-
-        {% if news %}
-            <h3>Latest News:</h3>
-            <ul>
-                {% for article in news %}
-                    <li>
-                        <a href="{{ article.link }}" target="_blank">{{ article.title }}</a>
-                        <p>{{ article.snippet }}</p>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No news available.</p>
-        {% endif %}
-    </div>
-</bo
+</body>
+</html>
 

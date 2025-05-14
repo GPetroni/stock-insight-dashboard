@@ -1,26 +1,28 @@
 # utils/graph.py
-
-import yfinance as yf
 import matplotlib.pyplot as plt
-import os
+import io
+import base64
 
-def generate_stock_chart(ticker):
-    data = yf.Ticker(ticker).history(period="1y")
-    if data.empty:
-        return None
-    
-    chart_path = f'static/charts/{ticker}_1y.png'
-    os.makedirs(os.path.dirname(chart_path), exist_ok=True)
-
+def generate_stock_chart(df, ticker):
     plt.figure(figsize=(10, 4))
-    plt.plot(data.index, data['Close'], label='Close Price', color='cyan')
-    plt.title(f"{ticker.upper()} - 1 Year Price")
-    plt.xlabel("Date")
-    plt.ylabel("Price (USD)")
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(chart_path)
-    plt.close()
+    plt.plot(df['Date'], df['Close'], color='cyan', linewidth=2)
+    plt.title(f'{ticker.upper()} - Closing Price (1 Year)', color='white')
+    plt.xlabel('Date', color='white')
+    plt.ylabel('Price (USD)', color='white')
+    plt.xticks(color='white')
+    plt.yticks(color='white')
+    plt.grid(True, linestyle='--', alpha=0.5)
 
-    return chart_path
+    plt.gca().set_facecolor('#1e1e1e')
+    plt.gcf().patch.set_facecolor('#121212')
+
+    # Save chart to a BytesIO stream
+    buf = io.BytesIO()
+    plt.tight_layout()
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight', transparent=True)
+    buf.seek(0)
+    chart_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+    plt.close()
+    return chart_base64
 
