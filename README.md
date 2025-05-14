@@ -7,7 +7,7 @@ A self-hosted web dashboard that lets you:
 - Search for any public stock (e.g., AAPL, TSLA)
 - View its 1-year historical performance
 - See recent news headlines for the company
-- Hosted on a home Linux server using Python and Streamlit
+- Hosted on a home Linux server using Python and Flask
 
 ---
 
